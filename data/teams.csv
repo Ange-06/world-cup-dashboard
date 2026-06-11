@@ -1,0 +1,49 @@
+member_id,member_name,team,group
+1,Rita,Colombia,K
+1,Rita,South Korea,A
+1,Rita,Canada,B
+1,Rita,Qatar,B
+2,Lambros,Croatia,L
+2,Lambros,Japan,F
+2,Lambros,Paraguay,D
+2,Lambros,New Zealand,G
+3,Luis,Netherlands,F
+3,Luis,Senegal,I
+3,Luis,Ivory Coast,E
+3,Luis,Haiti,C
+4,Richard,Portugal,K
+4,Richard,Austria,J
+4,Richard,Sweden,F
+4,Richard,Curaçao,E
+5,Efcee,Brazil,C
+5,Efcee,Uruguay,H
+5,Efcee,Norway,I
+5,Efcee,Bosnia-Herzegovina,B
+6,Angelos,Belgium,G
+6,Angelos,Mexico,A
+6,Angelos,Algeria,J
+6,Angelos,Iraq,I
+7,Andreana,France,I
+7,Andreana,Australia,D
+7,Andreana,Czechia,A
+7,Andreana,Saudi Arabia,H
+8,Soula,Argentina,J
+8,Soula,Switzerland,B
+8,Soula,Scotland,C
+8,Soula,Uzbekistan,K
+9,Angelica,England,L
+9,Angelica,United States,D
+9,Angelica,Tunisia,F
+9,Angelica,South Africa,A
+10,Talia,Spain,H
+10,Talia,Ecuador,E
+10,Talia,Egypt,G
+10,Talia,Ghana,L
+11,Daniella,Germany,E
+11,Daniella,Turkey,D
+11,Daniella,Congo DR,K
+11,Daniella,Jordan,J
+12,Chris,Morocco,C
+12,Chris,Iran,G
+12,Chris,Panama,L
+12,Chris,Cape Verde Islands,H

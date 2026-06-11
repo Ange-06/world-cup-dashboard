@@ -1,0 +1,12 @@
+event,points
+Win,3
+Draw,1
+Loss,0
+GroupWinner,5
+GroupRunnerUp,3
+Round32,2
+Round16,4
+QuarterFinal,6
+SemiFinal,10
+Final,15
+WorldCupWinner,25
