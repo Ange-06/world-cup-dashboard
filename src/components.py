@@ -6,26 +6,26 @@ from src.data_loader import get_photo_path
 from src.team_flags import flag_url
 
 
+def image_to_base64(image_path: Path) -> str:
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode()
+
+
 def render_avatar(member_name: str, photo_filename: str | None = None, size: int = 72) -> None:
-    """
-    Renders a circular member photo if available.
-    Otherwise renders a circular initials avatar.
-    """
     photo_path = get_photo_path(photo_filename) if photo_filename else None
 
     if photo_path and Path(photo_path).exists():
-        with open(photo_path, "rb") as image_file:
-            encoded = base64.b64encode(image_file.read()).decode()
+        encoded = image_to_base64(Path(photo_path))
 
         st.markdown(
             f"""
-            <img src="data:image/jpeg;base64,{encoded}"
+            <img src="data:image/png;base64,{encoded}"
                  style="
                      width:{size}px;
                      height:{size}px;
                      border-radius:50%;
                      object-fit:cover;
-                     border:2px solid #ddd;
+                     border:3px solid rgba(255,255,255,0.25);
                  ">
             """,
             unsafe_allow_html=True,
@@ -55,37 +55,7 @@ def render_avatar(member_name: str, photo_filename: str | None = None, size: int
         )
 
 
-def render_metric_card(title: str, value: str, caption: str | None = None) -> None:
-    st.markdown(
-        f"""
-        <div style="
-            padding:18px;
-            border-radius:16px;
-            border:1px solid rgba(128,128,128,0.25);
-            background:rgba(128,128,128,0.06);
-            height:100%;
-        ">
-            <div style="font-size:14px; opacity:0.75;">{title}</div>
-            <div style="font-size:26px; font-weight:800; margin-top:4px;">{value}</div>
-            <div style="font-size:13px; opacity:0.7; margin-top:6px;">{caption or ""}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def team_label(team_name: str | None) -> str:
-    """
-    Plain text team label for dataframe/table use.
-    """
-    return team_name if team_name else "Unknown"
-
-
-def team_label_html(team_name: str | None, flag_width: int = 28) -> str:
-    """
-    HTML team label with real flag image.
-    Use only inside st.markdown(..., unsafe_allow_html=True).
-    """
+def team_label_html(team_name: str | None, flag_width: int = 24) -> str:
     if not team_name:
         return "Unknown"
 
@@ -96,17 +66,13 @@ def team_label_html(team_name: str | None, flag_width: int = 28) -> str:
 
     return (
         f'<span style="display:inline-flex; align-items:center; gap:8px;">'
-        f'<img src="{url}" width="{flag_width}" '
-        f'style="border-radius:3px; vertical-align:middle;">'
+        f'<img src="{url}" width="{flag_width}" style="border-radius:3px;">'
         f'<span>{team_name}</span>'
         f'</span>'
     )
 
 
 def render_team_card(team_name: str, group: str | None = None) -> None:
-    """
-    Small reusable team card with image flag.
-    """
     group_text = f"Group {group}" if group else ""
 
     st.markdown(
@@ -124,6 +90,25 @@ def render_team_card(team_name: str, group: str | None = None) -> None:
             <div style="color:gray; font-size:13px; margin-top:6px;">
                 {group_text}
             </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_metric_card(title: str, value: str, caption: str | None = None) -> None:
+    st.markdown(
+        f"""
+        <div style="
+            padding:18px;
+            border-radius:16px;
+            border:1px solid rgba(128,128,128,0.25);
+            background:rgba(128,128,128,0.06);
+            height:100%;
+        ">
+            <div style="font-size:14px; opacity:0.75;">{title}</div>
+            <div style="font-size:26px; font-weight:800; margin-top:4px;">{value}</div>
+            <div style="font-size:13px; opacity:0.7; margin-top:6px;">{caption or ""}</div>
         </div>
         """,
         unsafe_allow_html=True,
