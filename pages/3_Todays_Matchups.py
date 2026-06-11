@@ -8,6 +8,7 @@ from src.matchups import (
     get_member_vs_member_matches,
     format_score,
 )
+from src.components import team_label_html
 
 
 st.set_page_config(
@@ -48,7 +49,10 @@ else:
             col_home, col_score, col_away = st.columns([3, 1, 3])
 
             with col_home:
-                st.markdown(f"### {match['home_team']}")
+                st.markdown(
+                    f"### {team_label_html(match['home_team'], flag_width=34)}",
+                    unsafe_allow_html=True,
+                )
                 st.markdown(f"Owner: **{match['home_owner']}**")
                 st.caption(f"Group {match['home_group']}")
 
@@ -64,7 +68,10 @@ else:
                 st.caption(match["status"])
 
             with col_away:
-                st.markdown(f"### {match['away_team']}")
+                st.markdown(
+                    f"### {team_label_html(match['away_team'], flag_width=34)}",
+                    unsafe_allow_html=True,
+                )
                 st.markdown(f"Owner: **{match['away_owner']}**")
                 st.caption(f"Group {match['away_group']}")
 
@@ -81,4 +88,22 @@ else:
         st.success(
             f"{match['home_owner']} ({match['home_team']}) "
             f"vs {match['away_owner']} ({match['away_team']})"
+        )
+
+        st.markdown(
+            f"""
+            <div style="
+                padding:10px 14px;
+                border-radius:10px;
+                border:1px solid rgba(128,128,128,0.25);
+                margin-bottom:8px;
+            ">
+                <strong>{match['home_owner']}</strong>
+                &nbsp; {team_label_html(match['home_team'], flag_width=24)}
+                &nbsp;&nbsp; vs &nbsp;&nbsp;
+                <strong>{match['away_owner']}</strong>
+                &nbsp; {team_label_html(match['away_team'], flag_width=24)}
+            </div>
+            """,
+            unsafe_allow_html=True,
         )

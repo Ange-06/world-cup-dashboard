@@ -1,6 +1,7 @@
 import streamlit as st
 
-from src.data_loader import load_members, load_teams, get_photo_path
+from src.data_loader import load_members, load_teams
+from src.components import render_avatar, render_team_card
 
 
 st.set_page_config(
@@ -26,30 +27,7 @@ for _, member in members_df.iterrows():
         col_photo, col_info = st.columns([1, 4])
 
         with col_photo:
-            photo_path = get_photo_path(photo_filename)
-
-            if photo_path:
-                st.image(str(photo_path), width=120)
-            else:
-                st.markdown(
-                    f"""
-                    <div style="
-                        width:120px;
-                        height:120px;
-                        border-radius:50%;
-                        background:#e5e7eb;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        font-size:42px;
-                        font-weight:700;
-                        color:#374151;
-                    ">
-                        {member_name[0]}
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
+            render_avatar(member_name, photo_filename, size=120)
 
         with col_info:
             st.subheader(member_name)
@@ -58,17 +36,7 @@ for _, member in members_df.iterrows():
 
             for idx, (_, team_row) in enumerate(member_teams.iterrows()):
                 with team_cols[idx]:
-                    st.markdown(
-                        f"""
-                        <div style="
-                            padding:12px;
-                            border-radius:12px;
-                            border:1px solid #ddd;
-                            text-align:center;
-                        ">
-                            <strong>{team_row["team"]}</strong><br>
-                            <span style="color:gray;">Group {team_row["group"]}</span>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
+                    render_team_card(
+                        team_name=team_row["team"],
+                        group=team_row["group"],
                     )

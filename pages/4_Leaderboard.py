@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 from src.api import load_standings
@@ -9,8 +10,7 @@ from src.scoring import (
     get_competition_leaders,
     get_team_of_tournament,
 )
-
-import pandas as pd
+from src.team_flags import flag_url
 
 
 st.set_page_config(
@@ -32,7 +32,6 @@ if standings_df.empty:
 
 standings_with_owners = attach_team_metadata(standings_df, teams_df)
 
-# Re-rank teams within each group using our local group mapping.
 ranked_groups = []
 
 for group_letter in list("ABCDEFGHIJKL"):
@@ -41,7 +40,6 @@ for group_letter in list("ABCDEFGHIJKL"):
 
 ranked_standings = pd.concat(ranked_groups, ignore_index=True)
 
-# Add member_id back after get_group_table output.
 ranked_standings = ranked_standings.merge(
     teams_df[["team", "member_id", "group"]],
     on="team",
@@ -80,6 +78,7 @@ with col2:
         st.info("No team leader yet.")
     else:
         top_team = team_of_tournament.iloc[0]
+
         st.metric(
             label=f"{top_team['team']} — {top_team['member_name']}",
             value=f"{int(top_team['team_score'])} pts",
@@ -120,8 +119,12 @@ st.divider()
 # -----------------------------
 st.subheader("Team-by-Team Scores")
 
+team_scores = team_scores.copy()
+team_scores.insert(0, "flag", team_scores["team"].apply(flag_url))
+
 team_scores_display = team_scores[
     [
+        "flag",
         "team",
         "member_name",
         "group",
@@ -140,6 +143,7 @@ team_scores_display = team_scores[
     ]
 ].rename(
     columns={
+        "flag": "Flag",
         "team": "Team",
         "member_name": "Owner",
         "group": "Group",
@@ -162,4 +166,7 @@ st.dataframe(
     team_scores_display,
     use_container_width=True,
     hide_index=True,
+    column_config={
+        "Flag": st.column_config.ImageColumn("Flag", width="small"),
+    },
 )
