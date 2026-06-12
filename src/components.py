@@ -17,8 +17,24 @@ def image_to_base64(image_path: Path) -> str:
         return base64.b64encode(image_file.read()).decode()
 
 
-def render_avatar(member_name: str, photo_filename: str | None = None, size: int = 72) -> None:
-    photo_path = get_photo_path(photo_filename) if photo_filename else None
+def render_avatar(member_name: str | None, photo_filename: str | None = None, size: int = 72) -> None:
+    """
+    Renders a circular member photo if available.
+    Otherwise renders initials.
+    Safely handles None, NaN, and missing knockout owners.
+    """
+    import pandas as pd
+
+    if member_name is None or pd.isna(member_name):
+        member_name = "TBC"
+
+    has_valid_photo = (
+            photo_filename is not None
+            and not pd.isna(photo_filename)
+            and str(photo_filename).strip() != ""
+    )
+
+    photo_path = get_photo_path(str(photo_filename)) if has_valid_photo else None
 
     if photo_path and Path(photo_path).exists():
         encoded = image_to_base64(Path(photo_path))
@@ -37,7 +53,7 @@ def render_avatar(member_name: str, photo_filename: str | None = None, size: int
             unsafe_allow_html=True,
         )
     else:
-        initials = "".join([part[0] for part in member_name.split()[:2]]).upper()
+        initials = "".join([part[0] for part in str(member_name).split()[:2]]).upper()
 
         st.markdown(
             f"""
