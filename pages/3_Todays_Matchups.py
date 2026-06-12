@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 from src.api import load_matches
@@ -40,10 +41,26 @@ matches_with_owners["away_photo"] = matches_with_owners["away_owner"].map(member
 
 available_dates = sorted(matches_with_owners["date"].dropna().unique())
 
+if not available_dates:
+    st.error("No match dates available.")
+    st.stop()
+
+today_utc = pd.Timestamp.now(tz="UTC").date()
+
+if today_utc in available_dates:
+    default_index = available_dates.index(today_utc)
+else:
+    future_dates = [date for date in available_dates if date >= today_utc]
+
+    if future_dates:
+        default_index = available_dates.index(future_dates[0])
+    else:
+        default_index = len(available_dates) - 1
+
 selected_date = st.selectbox(
     "Select match day",
     options=available_dates,
-    index=0,
+    index=default_index,
 )
 
 daily_matches = get_matches_for_date(matches_with_owners, selected_date)
