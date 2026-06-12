@@ -6,6 +6,12 @@ from src.data_loader import get_photo_path
 from src.team_flags import flag_url
 
 
+def refresh_live_data_button() -> None:
+    if st.button("🔄 Refresh Live Data"):
+        st.cache_data.clear()
+        st.rerun()
+
+
 def image_to_base64(image_path: Path) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode()
@@ -113,3 +119,40 @@ def render_metric_card(title: str, value: str, caption: str | None = None) -> No
         """,
         unsafe_allow_html=True,
     )
+
+
+def render_matchup_card(
+        home_team: str,
+        away_team: str,
+        home_owner: str,
+        away_owner: str,
+        home_photo: str | None,
+        away_photo: str | None,
+        kickoff_time: str,
+        status: str,
+        score: str,
+) -> None:
+    with st.container(border=True):
+        col_home, col_mid, col_away = st.columns([3, 1.2, 3])
+
+        with col_home:
+            render_avatar(home_owner, home_photo, size=80)
+            st.markdown(f"### {home_owner}")
+            st.markdown(team_label_html(home_team, flag_width=30), unsafe_allow_html=True)
+
+        with col_mid:
+            st.markdown(
+                f"""
+                <div style="text-align:center; margin-top:18px;">
+                    <div style="font-size:13px; opacity:0.75;">{kickoff_time}</div>
+                    <div style="font-size:28px; font-weight:800; margin-top:8px;">{score}</div>
+                    <div style="font-size:13px; opacity:0.75; margin-top:4px;">{status}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with col_away:
+            render_avatar(away_owner, away_photo, size=80)
+            st.markdown(f"### {away_owner}")
+            st.markdown(team_label_html(away_team, flag_width=30), unsafe_allow_html=True)

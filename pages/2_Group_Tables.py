@@ -4,6 +4,7 @@ from src.api import load_standings
 from src.data_loader import load_teams
 from src.standings import attach_team_metadata, get_group_table
 from src.team_flags import flag_url
+from src.components import refresh_live_data_button
 
 
 st.set_page_config(
@@ -14,6 +15,8 @@ st.set_page_config(
 
 st.title("📊 Group Stage Tables")
 st.caption("Live group-stage standings with each team’s family owner.")
+
+refresh_live_data_button()
 
 standings_df = load_standings()
 teams_df = load_teams()
@@ -27,10 +30,7 @@ standings_with_owners = attach_team_metadata(standings_df, teams_df)
 missing_owners = standings_with_owners[standings_with_owners["member_name"].isna()]
 
 if not missing_owners.empty:
-    st.warning(
-        "Some API team names do not match teams.csv. "
-        "Check the mismatched team names below."
-    )
+    st.warning("Some API team names do not match teams.csv.")
     st.dataframe(
         missing_owners[["team"]].drop_duplicates(),
         use_container_width=True,
@@ -54,7 +54,6 @@ for row_start in range(0, len(groups), 3):
 
             group_table = group_table.copy()
 
-            # Add real image flag URL column for Streamlit ImageColumn rendering.
             group_table.insert(
                 loc=1,
                 column="flag",
@@ -83,22 +82,8 @@ for row_start in range(0, len(groups), 3):
                 use_container_width=True,
                 hide_index=True,
                 column_config={
-                    "Flag": st.column_config.ImageColumn(
-                        "Flag",
-                        width="small",
-                    ),
-                    "#": st.column_config.NumberColumn(
-                        "#",
-                        width="small",
-                    ),
-                    "Team": st.column_config.TextColumn(
-                        "Team",
-                        width="medium",
-                    ),
-                    "Owner": st.column_config.TextColumn(
-                        "Owner",
-                        width="medium",
-                    ),
+                    "Flag": st.column_config.ImageColumn("Flag", width="small"),
+                    "#": st.column_config.NumberColumn("#", width="small"),
                     "P": st.column_config.NumberColumn("P", width="small"),
                     "W": st.column_config.NumberColumn("W", width="small"),
                     "D": st.column_config.NumberColumn("D", width="small"),

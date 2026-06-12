@@ -2,15 +2,22 @@ import pandas as pd
 import streamlit as st
 
 from src.api import load_matches, load_standings
-from src.data_loader import load_teams
+from src.data_loader import load_teams, load_members
 from src.standings import attach_team_metadata, get_group_table
+from src.matchups import attach_owners, format_score
 from src.scoring import (
     calculate_team_scores,
     calculate_member_leaderboard,
     get_competition_leaders,
     get_team_of_tournament,
 )
-from src.components import render_metric_card, team_label_html
+from src.components import (
+    render_metric_card,
+    refresh_live_data_button,
+    render_matchup_card,
+    team_label_html,
+)
+from src.time_utils import add_time_columns
 
 
 st.set_page_config(
@@ -22,9 +29,12 @@ st.set_page_config(
 st.title("⚽ FIFA World Cup 2026 Family Dashboard")
 st.caption("Family competition tracker with live fixtures, standings, and ownership scoring.")
 
-matches_df = load_matches()
+refresh_live_data_button()
+
+matches_df = add_time_columns(load_matches())
 standings_df = load_standings()
 teams_df = load_teams()
+members_df = load_members()
 rules_df = pd.read_csv("data/rules.csv")
 
 standings_with_owners = attach_team_metadata(standings_df, teams_df)
@@ -50,11 +60,15 @@ leaders = get_competition_leaders(leaderboard)
 team_of_tournament = get_team_of_tournament(team_scores)
 
 today = pd.Timestamp.now(tz="UTC").date()
-today_matches = matches_df[matches_df["date"] == today].copy()
 
-# -----------------------------
-# Top metric cards
-# -----------------------------
+matches_with_owners = attach_owners(matches_df, teams_df)
+
+member_photo_map = members_df.set_index("member_name")["photo"].to_dict()
+matches_with_owners["home_photo"] = matches_with_owners["home_owner"].map(member_photo_map)
+matches_with_owners["away_photo"] = matches_with_owners["away_owner"].map(member_photo_map)
+
+today_matches = matches_with_owners[matches_with_owners["date"] == today].copy()
+
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -81,7 +95,7 @@ with col2:
         )
 
 with col3:
-    render_metric_card("⚽ Matches Today", str(len(today_matches)), "Based on UTC date")
+    render_metric_card("⚽ Matches Today", str(len(today_matches)), "UTC date filter")
 
 with col4:
     active_teams = int((team_scores["played"] > 0).sum())
@@ -89,38 +103,26 @@ with col4:
 
 st.divider()
 
-# -----------------------------
-# Today's matches
-# -----------------------------
-st.subheader("⚽ Today's Matches")
+st.subheader("⚽ Playing Today")
 
 if today_matches.empty:
     st.info("No World Cup matches scheduled today.")
 else:
     for _, match in today_matches.iterrows():
-        st.markdown(
-            f"""
-            <div style="
-                padding:10px 14px;
-                border-radius:10px;
-                border:1px solid rgba(128,128,128,0.25);
-                margin-bottom:8px;
-            ">
-                <strong>{match['time_utc']} UTC</strong>
-                &nbsp;&nbsp;
-                {team_label_html(match['home_team'], flag_width=24)}
-                &nbsp;&nbsp; vs &nbsp;&nbsp;
-                {team_label_html(match['away_team'], flag_width=24)}
-            </div>
-            """,
-            unsafe_allow_html=True,
+        render_matchup_card(
+            home_team=match["home_team"],
+            away_team=match["away_team"],
+            home_owner=match["home_owner"],
+            away_owner=match["away_owner"],
+            home_photo=match["home_photo"],
+            away_photo=match["away_photo"],
+            kickoff_time=match["kickoff_time"],
+            status=match["status"],
+            score=format_score(match),
         )
 
 st.divider()
 
-# -----------------------------
-# Current leaderboard preview
-# -----------------------------
 st.subheader("🏆 Leaderboard Preview")
 
 display_leaderboard = leaderboard.head(5).rename(

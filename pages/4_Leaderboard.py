@@ -11,6 +11,7 @@ from src.scoring import (
     get_team_of_tournament,
 )
 from src.team_flags import flag_url
+from src.components import refresh_live_data_button
 
 
 st.set_page_config(
@@ -21,6 +22,8 @@ st.set_page_config(
 
 st.title("🏆 Family Competition Leaderboard")
 st.caption("Leaderboard based on live World Cup group-stage performance.")
+
+refresh_live_data_button()
 
 standings_df = load_standings()
 teams_df = load_teams()
@@ -52,9 +55,6 @@ leaderboard = calculate_member_leaderboard(team_scores)
 leaders = get_competition_leaders(leaderboard)
 team_of_tournament = get_team_of_tournament(team_scores)
 
-# -----------------------------
-# Summary cards
-# -----------------------------
 col1, col2 = st.columns(2)
 
 with col1:
@@ -86,9 +86,6 @@ with col2:
 
 st.divider()
 
-# -----------------------------
-# Main leaderboard
-# -----------------------------
 st.subheader("Overall Leaderboard")
 
 display_leaderboard = leaderboard.rename(
@@ -114,9 +111,6 @@ st.dataframe(
 
 st.divider()
 
-# -----------------------------
-# Team scores
-# -----------------------------
 st.subheader("Team-by-Team Scores")
 
 team_scores = team_scores.copy()
