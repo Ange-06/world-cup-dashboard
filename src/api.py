@@ -22,7 +22,7 @@ def _season() -> int:
     return int(st.secrets.get("FOOTBALL_DATA_SEASON", 2026))
 
 
-@st.cache_data(ttl=6 * 60 * 60)
+@st.cache_data(ttl=10 * 60 * 60)
 def fetch_matches_raw() -> list[dict]:
     url = f"{BASE_URL}/competitions/{_competition_code()}/matches"
 
@@ -39,7 +39,7 @@ def fetch_matches_raw() -> list[dict]:
     return payload.get("matches", [])
 
 
-@st.cache_data(ttl=6 * 60 * 60)
+@st.cache_data(ttl=0.25 * 60 * 60)
 def fetch_standings_raw() -> list[dict]:
     url = f"{BASE_URL}/competitions/{_competition_code()}/standings"
 
